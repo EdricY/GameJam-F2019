@@ -56,7 +56,6 @@
   var peer;
   var untouched = true;
   var hosting = false;
-  var connected = false;
   var connection;
   
   var loadInterval;
@@ -91,24 +90,14 @@
     });
 
     hosting = true;
-    peer.on('connection', function (conn) {
+    peer.on('connection', function (conn) { //setup
       console.log('host onconnection')
       connection = conn;
-      conn.on('data', function (data) {
-        console.log(data)
-        if (untouched) {
-          if (data === "readyforgamejam") {
-            untouched = false;
-            console.log("connected to client!")
-            connected = true;
-            conn.send("yeahletsgo");
-            loadInterval = setInterval(attemptInit, 1000);
-            connectDiv.classList.add("nodisplay");
-            loadmsg.classList.remove("nodisplay");
-          }
-          // ignore anything else
-          return;
-        }
+      loadInterval = setInterval(attemptInit, 1000);
+      connectDiv.classList.add("nodisplay");
+      loadmsg.classList.remove("nodisplay");
+
+      conn.on('data', function (data) { //msg handler
         handleMessage(data);
       });
     });
@@ -117,47 +106,40 @@
   function connect() {
     peer = new Peer();
     peer.on('error', () => {
+      console.log('client error')
       myPeerID.innerHTML = "There was an error finding the host. Please try again.";
       location.reload();
     });
     peer.on('close', () => {
+      console.log('client close')
       myPeerID.innerHTML = "The connection was closed.";
       location.reload();
     });
     peer.on('disconnected', () => {
+      console.log('client disconnect')
       myPeerID.innerHTML = "The connection was disconnected.";
       location.reload();
     });
+
     peer.on('open', () => {
       myPeerID.innerHTML = "Client ID: " + peer.id;
-      connectDiv.classList.add("nodisplay")
+      connectDiv.classList.add("nodisplay");
       connection = peer.connect(hostID.value);
-      connection.on('data', function (data) {
-        console.log(data)
-        if (untouched) {
-          if (data === "yeahletsgo") {
-            untouched = false;
-            console.log('connected to host!')
-            connected = true;
-            loadInterval = setInterval(attemptInit, 1000);
-            connectDiv.classList.add("nodisplay");
-            loadmsg.classList.remove("nodisplay");
-          }
-          // ignore anything else
-          return;
-        }
-        handleMessage(data);
-      });
-      connection.on('open', function () {
-        console.log('client connection onopen')
-        connection.send('readyforgamejam');
-        connected = true;
+
+      connection.on('open', function () { //setup
+        loadInterval = setInterval(attemptInit, 1000);
+        connectDiv.classList.add("nodisplay");
+        loadmsg.classList.remove("nodisplay");
       });
       connection.on('error', function () {
         console.log('client connection error')
       });
       connection.on('close', function () {
         console.log('client connection close')
+      });
+
+      connection.on('data', function (data) { //msg handler
+        handleMessage(data);
       });
     });
 
