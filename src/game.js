@@ -3,12 +3,12 @@ var lag = 0;
 var redraw = false;
 var player;
 var camera = new Camera();
+var world;
 var gameState = {
     update: function () { },
     draw: function () { },
 }
 
-// cMaps = [];
 
 function gameInit() {
     gameState.update = gameUpdate;
@@ -17,28 +17,28 @@ function gameInit() {
     camera = new Camera();
     camera.setTarget(player);
 
-    // cMap = new CollisionMap(img2AlphaMatrix(areaCanvas));
-    cmapImg = cmapImg1;
-    cMap = new CollisionMap(img2Matrix(cmapImg, PIXELDICT));
-    cMaps = [
-        new CollisionMap(img2Matrix(cmapImg1, PIXELDICT)),
-        new CollisionMap(img2Matrix(cmapImg2, PIXELDICT)),
-        new CollisionMap(img2Matrix(cmapImg3, PIXELDICT)),
-        new CollisionMap(img2Matrix(cmapImg4, PIXELDICT)),
-    ];
-    mapImgs = [
+    cMapImgs = [
         cmapImg1,
         cmapImg2,
         cmapImg3,
         cmapImg4,
     ];
     
+    mapImgs = [
+        backImg1,
+        cmapImg2,//replace with backimgs later
+        cmapImg3,
+        cmapImg4,
+    ];
+
+    world = new World(cMapImgs, mapImgs) 
+
     requestAnimationFrame(tick);
 }
 
 function gameUpdate() {
     camera.update();
-    player.update(cMap, keys, lastKeys, camera);
+    player.update(world.cMap, keys, lastKeys, camera);
     lastKeys = JSON.parse(JSON.stringify(keys)); //TODO: custom deep copy
 }
 
@@ -47,8 +47,7 @@ function gameDraw() {
     ctx.save();
     camera.moveCtx(ctx);
 
-    // let imgL = cMaps 
-    ctx.drawImage(cmapImg, 0, 0);
+    world.draw(ctx, camera.x + VW/2)
     player.draw(ctx);
     ctx.restore();
     drawHUD();

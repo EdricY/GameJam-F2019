@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" href="index.css">
   <script>
     var loadedResrcs = 0;
-    const RESRCS_TO_LOAD = 5;
+    const RESRCS_TO_LOAD = 6;
     function resrcLoaded() { loadedResrcs++; loadmsg.innerHTML += "."; }
   </script>
 </head>
@@ -33,6 +33,7 @@
 <img hidden id='cmapImg2' onload="resrcLoaded()" src='resrc/L2.png'>
 <img hidden id='cmapImg3' onload="resrcLoaded()" src='resrc/L3.png'>
 <img hidden id='cmapImg4' onload="resrcLoaded()" src='resrc/L4.png'>
+<img hidden id='backImg1' onload="resrcLoaded()" src='resrc/backimg1.png'>
 
 <script src="src/peer.js"></script> <!-- https://peerjs.com/ -->
 <script src="src/constants.js"></script>
@@ -40,9 +41,10 @@
 <script src="src/imgutil.js"></script>
 <script src="src/collisionMap.js"></script>
 <script src="src/camera.js"></script>
-<script src="src/animator.js"></script>
 <script src="src/player.js"></script>
-<script src="src/game.js"></script>
+<script src="src/animator.js"></script>
+<script src="src/world.js"></script>
+<script defer src="src/game.js"></script>
 
 <script>
   var peer;
@@ -63,7 +65,7 @@
     });
 
     peer.on('error', () => {
-      myPeerID.innerHTML = "There was an error setting the connection. Please reload and try again later";
+      myPeerID.innerHTML = "There was an error setting up the connection. Please reload and try again later";
     });
 
     hosting = true;

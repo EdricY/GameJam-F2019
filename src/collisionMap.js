@@ -12,9 +12,10 @@ class CollisionMap {
         let r = Math.round(bottom) + 1; //row below bottom
         if (r >= WH || r < 0) return null;       //world borders
         x = Math.round(x) - halfwidth;  //left
+        //should pass in keys, but too lazy
         for (let c = x; c < x + halfwidth*2; c++) {
             let val = this.collMatrix[r][c];
-            if (val == 1 || val === 0) {
+            if (val == 1 || (val === 0 && !keys[83])) {
                 return c;
             }
         }
@@ -43,7 +44,7 @@ class CollisionMap {
             if (r < 0 || r >= WH) return null;
             let val = this.collMatrix[r][c];
             if (val == 1) return r;
-            if (doStepUp && r > y - STEP_UP_GRACE && val === 0) {
+            if (doStepUp && r > y - STEP_UP_GRACE && val === 0 && !keys[83]) {
                 return r;
             } 
         }
@@ -59,7 +60,7 @@ class CollisionMap {
             if (r < 0 || r >= WH) return null;
             let val = this.collMatrix[r][c];
             if (val == 1) return r;
-            if (doStepUp && r > y - STEP_UP_GRACE && val === 0) {
+            if (doStepUp && r > y - STEP_UP_GRACE && val === 0 && !keys[83]) {
                 return r;
             } 
         }

@@ -3,15 +3,15 @@ class Player {
     x = 100; // middle of player (right pixel)
     y = 200;  // bottom of player
     vx = 0;
-    vy = 0;
+    vy = -20;
     w = 32;
     hw = 32/2; //half width
-    h = 64;
+    h = 80;
     ax = .6;
     jv = -18;
     // mvx = 20;
     mvy = 22;
-    midairJumps = 1;
+    midairJumps = 0;
     midair = true;
     midairTimer = 0;
     animator = new Animator();
@@ -62,12 +62,13 @@ class Player {
                 // if (this.vx > this.mvx) this.vx = this.mvx;
                 if (this.vx > 0) this.facingRight = true;
             }
-            if (keys[87] && !lastKeys[87]) { //up
-                this.jv = -18;
+            if (keys[87] && !lastKeys[87] && this.midairTimer < COYOTE_DUR) { //up
+                this.jv = -20;
                 this.animator.play("jumpcrouch", t => {
                     if (t > P_CROUCH_DUR) {
                         this.jumps--;
-                        this.animator.switchState("midair");
+                        this.animator.play("midair");
+                        this.midair = true;
                         this.vy = this.jv;
                     }
                 });
@@ -223,31 +224,16 @@ class Player {
     
     initAnimator() {
         let midairframes = [
-            { x:340, y:433, w:50, h:59, px:356, py:486 },
-            { x:393, y:430, w:46, h:62, px:411, py:486 },
-            { x:7,   y:511, w:44, h:66, px:24 , py:572 },
-            { x:59,  y:507, w:41, h:70, px:76 , py:572 },
-            { x:106, y:506, w:36, h:71, px:125, py:572 },
-            { x:154, y:507, w:36, h:70, px:172, py:572 },
-            { x:197, y:507, w:37, h:70, px:213, py:572 },
+            { x:384, y:249, w:92, h:127, px:436, py:375 },
         ]
         this.animator.register("midair",
             midairframes,
-            t => {
-                // if      (obj.vy > -2.25)  return 6;
-                // else if (obj.vy > -4.5)   return 5;
-                // else if (obj.vy > -6.75)  return 4;
-                // else if (obj.vy > -9)     return 3;
-                // else if (obj.vy > -11.25) return 2;
-                // else if (obj.vy > -13.5)  return 1;
-                // else                      return 0;
-                return Math.floor(Math.min(6,Math.max(0, 7+this.vy/2.25)));
-            }
+            t => 0
         );
 
         let jumpcrouchframes = [
-            { x:154, y:441, w:56, h:54, px:182, py:494 },
-            { x:214, y:440, w:55, h:55, px:242, py:494 },
+            { x:135, y:255, w:87, h:90, px:190, py:343 },
+            { x:260, y:254, w:88, h:107, px:297, py:360 },
         ];
         this.animator.register("jumpcrouch",
             jumpcrouchframes,
@@ -255,8 +241,8 @@ class Player {
         );
 
         let landingframes = [
-            { x:241, y:507, w:47, h:87, px:270, py:590 },
-            { x:291, y:551, w:58, h:43, px:332, py:581 },
+            { x:260, y:254, w:88, h:107, px:297, py:360 },
+            { x:135, y:255, w:87, h:90, px:190, py:343 },
         ];
         this.animator.register("land",
             landingframes,
@@ -264,18 +250,18 @@ class Player {
         );
 
         this.animator.register("stand", [
-                { x:3, y:7, w:36, h:42, px:21, py:44 },
+                { x:11, y:13, w:76, h:96, px:45, py:106 },
             ],
             (() => 0) //always select frame 0
         );
 
         let runningFrames = [
-            { x:3, y:7, w:36, h:42, px:21, py:44 },
-            { x:41, y:4, w:37, h:46, px:58, py:46 },
-            { x:80, y:6, w:38, h:44, px:97, py:46 },
-            { x:82, y:75, w:34, h:40, px:96, py:113 },
-            { x:124, y:72, w:39, h:46, px:145, py:115 },
-            { x:168, y:78, w:32, h:41, px:182, py:116 },
+            { x:11, y:13, w:76, h:96, px:45, py:106 },
+            { x:100, y:9, w:86, h:105, px:146, py:110 },
+            { x:203, y:20, w:79, h:93, px:243, py:110 },
+            { x:7, y:134, w:82, h:92, px:46, py:225 },
+            { x:117, y:129, w:86, h:103, px:156, py:230 },
+            { x:220, y:143, w:79, h:92, px:260, py:232 },
         ];
         this.animator.register("run", runningFrames,
         getLoopingFrameSelector(40, runningFrames.length)

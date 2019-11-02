@@ -4,8 +4,10 @@ var ctx = canvas.getContext("2d");
 
 const VW = renderer.width
 const VH = renderer.height
-const WW = renderer.width * 4/3
-const WH = renderer.height * 4/3
+const CW = renderer.width * 4/3
+const CH = renderer.height * 4/3
+const WW = CW * 4;
+const WH = CH;
 
 //game state
 const UPDATES_PER_SEC = 60;

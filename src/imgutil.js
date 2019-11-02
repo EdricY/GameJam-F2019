@@ -90,7 +90,6 @@ function img2AlphaMatrix(img, binary=true) {
     return imageData2AlphaMatrix(img2ImageData(img), binary);
 }
 
-
 function spriteSheetImg2ImgArray(img, spw=32, sph=32) {
     let canvas = document.createElement("canvas");
     let ctx = canvas.getContext("2d");
