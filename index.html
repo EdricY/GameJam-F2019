@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <link rel="stylesheet" type="text/css" href="index.css">
+  <script>
+    var loadedResrcs = 0;
+    const RESRCS_TO_LOAD = 5;
+    function resrcLoaded() { loadedResrcs++; loadmsg.innerHTML += "."; }
+  </script>
+</head>
+
+<body id="body">
+  <div id="connectDiv">
+    <div>
+      <label for="hostID">Host ID:</label>
+      <input id="hostID" type="text" value="maybehector">
+    </div>
+    <div>
+      <button onclick="connect()">Connect</button>
+      <button onclick="host()">Host</button>
+    </div>
+  </div>
+  <div id="myPeerID"></div>
+
+  <div class="nodisplay" id="loadmsg">Loading</div>
+  <canvas id="canvas" width="720" height="480"></canvas>
+  <canvas hidden id="renderer" width="720" height="480"></canvas>
+</body>
+<img hidden id='psprites' onload="resrcLoaded()" src='resrc/girl1Sheet.png'>
+<!-- <img hidden id='psprites' onload="resrcLoaded()" src='resrc/hectorsheet.png'> -->
+<img hidden id='cmapImg1' onload="resrcLoaded()" src='resrc/L1.png'>
+<img hidden id='cmapImg2' onload="resrcLoaded()" src='resrc/L2.png'>
+<img hidden id='cmapImg3' onload="resrcLoaded()" src='resrc/L3.png'>
+<img hidden id='cmapImg4' onload="resrcLoaded()" src='resrc/L4.png'>
+
+<script src="src/peer.js"></script> <!-- https://peerjs.com/ -->
+<script src="src/constants.js"></script>
+<script src="src/keys.js"></script>
+<script src="src/imgutil.js"></script>
+<script src="src/collisionMap.js"></script>
+<script src="src/camera.js"></script>
+<script src="src/animator.js"></script>
+<script src="src/player.js"></script>
+<script src="src/game.js"></script>
+
+<script>
+  var peer;
+  var untouched = true;
+  var hosting = false;
+  var connected = false;
+  var connection;
+  
+  var loadInterval;
+
+  function host() {
+    let peerid = hostID.value
+    peer = new Peer(peerid);
+    myPeerID.innerHTML = "Initializing...";
+    peer.on('open', () => {
+      myPeerID.innerHTML = "Host ID: " + peer.id + "<br>Waiting for your partner...";
+      connectDiv.classList.add("nodisplay")
+    });
+
+    peer.on('error', () => {
+      myPeerID.innerHTML = "There was an error setting the connection. Please reload and try again later";
+    });
+
+    hosting = true;
+    peer.on('connection', function (conn) {
+      console.log('h peer on connect')
+      connection = conn;
+      conn.on('data', function (data) {
+        if (untouched) {
+          if (data === "readyforgamejam") {
+            untouched = false;
+            console.log('connected!')
+            connected = true;
+            conn.send("yeahletsgo");
+            loadInterval = setInterval(attemptInit, 1000);
+            connectDiv.classList.add("nodisplay");
+            loadmsg.classList.remove("nodisplay");
+          }
+          // ignore anything else
+          return;
+        }
+        handleMessage(data);
+      });
+    });
+  }
+
+  function connect() {
+    peer = new Peer();
+    peer.on('open', () => {
+      myPeerID.innerHTML = "Client ID: " + peer.id;
+      connectDiv.classList.add("nodisplay")
+      connection = peer.connect(hostID.value);
+      connection.on('data', function (data) {
+        if (untouched) {
+          if (data === "yeahletsgo") {
+            untouched = false;
+            console.log('connected!')
+            connected = true;
+            loadInterval = setInterval(attemptInit, 1000);
+            connectDiv.classList.add("nodisplay");
+            loadmsg.classList.remove("nodisplay");
+
+          }
+          // ignore anything else
+          return;
+        }
+        handleMessage(data);
+      });
+      connection.on('open', function () {
+        connection.send('readyforgamejam');
+        connected = true;
+      });
+    });
+    
+    peer.on('error', () => {
+      myPeerID.innerHTML = "There was an error finding the host. Please try again.";
+      location.reload();
+    });
+  }
+
+  function handleMessage(data) {
+    let parsed = JSON.parse(data);
+    let type = parsed.type;
+    let obj = parsed.obj;
+    console.log(obj);
+  }
+
+
+  function attemptInit() {
+    if (loadedResrcs == RESRCS_TO_LOAD) {
+      clearInterval(loadInterval)
+      loadmsg.classList.add("nodisplay");
+      myPeerID.classList.add("nodisplay");
+      gameInit();
+    }
+  }
+</script>
+
+</html>
