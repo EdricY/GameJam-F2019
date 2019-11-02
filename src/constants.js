@@ -31,6 +31,8 @@ const P_LAND_DUR = 14;
 const P_RUN_CYCLE_DUR = 40;
 const COYOTE_DUR = 4;
 const CHANNEL_DUR = 4;
+const SWAP_DUR = 60;
+
 
 //map things
 const PIXELDICT = { //TODO: get from dictonary img instead
@@ -57,6 +59,10 @@ const DN_KEY = 83; // 40
 const LEFT_KEY = 65; // 37
 const RGHT_KEY = 68; // 39
 
-//messages 
-const PEEKREQ = 0;
-const PEEKMSG = 1;
+//messages
+var msgEnumCount = 0;
+const PEEKREQ = msgEnumCount++;
+const PEEKMSG = msgEnumCount++;
+const SWAPMSG = msgEnumCount++;
+
+const COMPRESSION_FACTOR = .1;

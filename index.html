@@ -62,6 +62,15 @@
   var loadInterval;
 
   var peeking = false;
+  var peekImg = document.createElement("img");
+  var peekImgReady = false;
+  var outstandingPeekReq = false;
+
+  var swapInProgress = false;
+  var swapTimer = 60;
+  var swapMsgSent = false;
+  var swapFollowUpTimer = 60;
+  var swapData = {};
 
   function host() {
     let peerid = hostID.value
@@ -76,15 +85,21 @@
       myPeerID.innerHTML = "There was an error setting up the connection. Please reload and try again later";
     });
 
+    peer.on('close', () => {
+      myPeerID.innerHTML = "The connection was closed.";
+      location.reload();
+    });
+
     hosting = true;
     peer.on('connection', function (conn) {
-      console.log('h peer on connect')
+      console.log('host onconnection')
       connection = conn;
       conn.on('data', function (data) {
+        console.log(data)
         if (untouched) {
           if (data === "readyforgamejam") {
             untouched = false;
-            console.log('connected!')
+            console.log("connected to client!")
             connected = true;
             conn.send("yeahletsgo");
             loadInterval = setInterval(attemptInit, 1000);
@@ -101,15 +116,28 @@
 
   function connect() {
     peer = new Peer();
+    peer.on('error', () => {
+      myPeerID.innerHTML = "There was an error finding the host. Please try again.";
+      location.reload();
+    });
+    peer.on('close', () => {
+      myPeerID.innerHTML = "The connection was closed.";
+      location.reload();
+    });
+    peer.on('disconnected', () => {
+      myPeerID.innerHTML = "The connection was disconnected.";
+      location.reload();
+    });
     peer.on('open', () => {
       myPeerID.innerHTML = "Client ID: " + peer.id;
       connectDiv.classList.add("nodisplay")
       connection = peer.connect(hostID.value);
       connection.on('data', function (data) {
+        console.log(data)
         if (untouched) {
           if (data === "yeahletsgo") {
             untouched = false;
-            console.log('connected!')
+            console.log('connected to host!')
             connected = true;
             loadInterval = setInterval(attemptInit, 1000);
             connectDiv.classList.add("nodisplay");
@@ -121,32 +149,56 @@
         handleMessage(data);
       });
       connection.on('open', function () {
+        console.log('client connection onopen')
         connection.send('readyforgamejam');
         connected = true;
       });
+      connection.on('error', function () {
+        console.log('client connection error')
+      });
+      connection.on('close', function () {
+        console.log('client connection close')
+      });
     });
-    
-    peer.on('error', () => {
-      myPeerID.innerHTML = "There was an error finding the host. Please try again.";
-      location.reload();
+
+    peer.on('connection', () => {
+      console.log('client onconnection')
     });
+
   }
 
+  //receiving messages
   function handleMessage(data) {
     let parsed = JSON.parse(data);
     let type = parsed.type;
     let obj = parsed.obj;
     switch (type) {
       case PEEKREQ: {
-        connection.send(newPacket(PEEKMSG, canvas.toDataURL('image/jpeg', .1)))
+        if (swapInProgress) break;
+        if (peeking)  {//swap
+          swapInProgress = true;
+          // both enter here once per swap.
+        } else { // send them my canvas
+          outstandingPeekReq = true;
+        }
         break;
       }
       case PEEKMSG: {
-        peekImg = document.createElement("img");
         peekImg.src = obj;
-        console.log(obj.length);
+        peekImg.onload = () => peekImgReady = true;
         break;
       }
+      case SWAPMSG: {
+        swapData = obj;
+        break;
+      }
+    }
+  }
+
+  function getSwapData() {
+    return {
+      x: activePortal.x,
+      y: activePortal.y,
     }
   }
 

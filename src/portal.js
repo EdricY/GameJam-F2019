@@ -24,11 +24,18 @@ class Portal {
   update() {
     this.animator.update();
     let dx = player.x - this.x;
-    if (Math.abs(dx) > 20) return this.animator.play("idle");
+    if (Math.abs(dx) > 20) {
+      this.animator.play("idle");
+      return null;
+    }
     let dy = player.y - this.y;
-    if (Math.abs(dy) > 10) return this.animator.play("idle");
+    if (Math.abs(dy) > 10){
+      this.animator.play("idle");
+      return null;
+    }
     this.animator.play("active");
-    peeking = keys[PEEK_KEY];
+    if (keys[PEEK_KEY]) return this;
+    return null;
   }
 
   draw(ctx) {

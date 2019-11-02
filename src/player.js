@@ -8,7 +8,9 @@ class Player {
     hw = 32/2; //half width
     h = 80;
     ax = .6;
-    jv = -18;
+    jv = 0;
+    fulljv = -20;
+    shortjv = -13;
     // mvx = 20;
     mvy = 22;
     midairJumps = 0;
@@ -20,7 +22,7 @@ class Player {
     constructor(spriteSheet) {
         this.spriteSheet = spriteSheet;
         this.initAnimator();
-        this.animator.switchState("midair");
+        this.animator.play("midair");
     }
 
     animCheck(stateName) {
@@ -51,7 +53,7 @@ class Player {
 
     update(cMap, keys, lastKeys, camera) {
         this.animator.update();
-        if (true) { //controls (switch to "takingInput" condition)
+        if (!swapInProgress) { //controls (switch to "takingInput" condition)
             if (keys[LEFT_KEY]) { //left
                 this.vx -= this.ax;
                 // if (this.vx < -this.mvx) this.vx = -this.mvx;
@@ -63,7 +65,7 @@ class Player {
                 if (this.vx > 0) this.facingRight = true;
             }
             if (keys[UP_KEY] && !lastKeys[UP_KEY] && this.midairTimer < COYOTE_DUR) { //up
-                this.jv = -20;
+                this.jv = this.fulljv;
                 this.animator.play("jumpcrouch", t => {
                     if (t > P_CROUCH_DUR) {
                         this.jumps--;
@@ -75,7 +77,7 @@ class Player {
             }
             if (!keys[UP_KEY] && lastKeys[UP_KEY] && this.animCheck("jumpcrouch")) {
                 //short hop
-                this.jv = -13;
+                this.jv = this.shortjv;
             }
         }
         let omidair = this.midair;
@@ -139,7 +141,7 @@ class Player {
                 this.animator.play("land", t => {
                     if (t >= P_LAND_DUR) {
                         // might be bad practice... maybe setup timers on the player instead
-                        this.animator.switchState("stand");
+                        this.animator.play("stand");
                     }
                 });
             } 
@@ -163,6 +165,10 @@ class Player {
 
         if (this.midair) this.midairTimer++;
         else this.midairTimer = 0;
+
+        if (swapInProgress) {
+            this.animator.play("swap");
+        }
     }
 
     /* move down 1 pixel or collide
@@ -264,7 +270,14 @@ class Player {
             { x:220, y:143, w:79, h:92, px:260, py:232 },
         ];
         this.animator.register("run", runningFrames,
-        getLoopingFrameSelector(P_RUN_CYCLE_DUR, runningFrames.length)
+            getLoopingFrameSelector(P_RUN_CYCLE_DUR, runningFrames.length)
+        );
+
+        let swappingFrames = [
+            { x:135, y:255, w:87, h:90, px:190, py:343 },
+        ];
+        this.animator.register("swap", swappingFrames,
+            (t => 0)
         );
     }
 

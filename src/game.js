@@ -4,13 +4,13 @@ var redraw = false;
 var player;
 var camera = new Camera();
 var world;
-var peekImg;
 var gameState = {
     update: function () { },
     draw: function () { },
 }
 
 var portals = [];
+var activePortal;
 
 
 function gameInit(isP1) {
@@ -51,12 +51,40 @@ function gameInit(isP1) {
 
 function gameUpdate() {
     camera.update();
-    for (let p of portals) p.update(); //sets peeking
+
+    activePortal = null;
+    for (let p of portals) {
+        if (p.update()) {
+            activePortal = p;
+        }
+    }
+    peeking = activePortal != null;
 
     player.update(world.cMap, keys, lastKeys, camera);
     
-    if (peeking === true) {
+    if (peeking && swapFollowUpTimer == 0) { //keeps sending after they stop responding
         connection.send(newPacket(PEEKREQ));
+    }
+
+    if (swapInProgress) {
+        swapTimer--;
+        if (!swapMsgSent) {
+            connection.send(newPacket(SWAPMSG, getSwapData()));
+            swapMsgSent = true;
+        }
+        if (swapTimer <= 0) { //do swap!
+            swapTimer = 60;
+            swapFollowUpTimer = 60;
+            swapInProgress = false;
+            swapMsgSent = false;
+            player.x = swapData.x
+            player.y = swapData.y
+        }
+    } else if (swapFollowUpTimer > 0) swapFollowUpTimer--;
+    
+    if (outstandingPeekReq) {
+        connection.send(newPacket(PEEKMSG, canvas.toDataURL('image/jpeg', COMPRESSION_FACTOR)))
+        outstandingPeekReq = false;
     }
 
     lastKeys = JSON.parse(JSON.stringify(keys)); //TODO: custom deep copy
@@ -74,10 +102,12 @@ function gameDraw() {
     player.draw(ctx);
     ctx.restore();
     drawHUD();
-    if (peeking && peekImg) {
+    if (peeking && peekImgReady && swapFollowUpTimer == 0) {
         ctx.drawImage(peekImg, VW/4, VH/4, VW/2, VH/2);
         ctx.strokeStyle = "darkblue";
         ctx.strokeRect(VW/4, VH/4, VW/2, VH/2)
+    } else if (!peeking) {
+        peekImgReady = false;
     }
 }
 
@@ -112,6 +142,7 @@ function drawHUD() {
         'player.midair',
         'player.animator.state',
         'peeking',
+        'swapTimer',
 	]
 	let spacing = 20;
 	for (let i in properties){
