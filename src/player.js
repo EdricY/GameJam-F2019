@@ -1,5 +1,7 @@
 // requires animator.js
 class Player {
+    maxhealth = VW - 20*2
+    health = this.maxhealth;
     x = 100; // middle of player (right pixel)
     y = 200;  // bottom of player
     vx = 0;
@@ -17,10 +19,12 @@ class Player {
     midair = true;
     midairTimer = 0;
     animator = new Animator();
-    facingRight = false;
+    facingRight = true;
+    hurtTimer = 0;
 
-    constructor(spriteSheet) {
-        this.spriteSheet = spriteSheet;
+    constructor(spriteSheet1, spriteSheet2) {
+        this.spriteSheet1 = spriteSheet1;
+        this.spriteSheet2 = spriteSheet2;
         this.initAnimator();
         this.animator.play("midair");
     }
@@ -34,8 +38,9 @@ class Player {
         let pleft = this.x - this.hw
         let x = Math.floor(pleft);
         let y = Math.floor(ptop);
-        ctx.fillStyle = 'red';
-        ctx.fillRect(x, y, this.w, this.h);
+        
+        // ctx.fillStyle = 'red';
+        // ctx.fillRect(x, y, this.w, this.h);
         
         let frame = this.animator.getFramePositionData(this);
         let top = this.y - (frame.py - frame.y);
@@ -44,13 +49,17 @@ class Player {
         let alpha = ctx.globalAlpha;
         if (swapTimer > 0) ctx.globalAlpha = swapTimer / 60;
         if (swapFollowUpTimer > 0) ctx.globalAlpha = 1 - swapFollowUpTimer / 60;
+        if (this.hurtTimer > 0) ctx.globalAlpha = 1 - this.hurtTimer / 100;
 
+        let spriteSheet;
+        if (isP1) spriteSheet = this.spriteSheet1
+        else spriteSheet = this.spriteSheet2
         if (this.facingRight) {
-            ctx.drawImage(this.spriteSheet, frame.x, frame.y, frame.w, frame.h, left, top, frame.w, frame.h);
+            ctx.drawImage(spriteSheet, frame.x, frame.y, frame.w, frame.h, left, top, frame.w, frame.h);
         } else {
             let right = this.x + (frame.px - frame.x);
             ctx.scale(-1, 1);
-            ctx.drawImage(this.spriteSheet, frame.x, frame.y, frame.w, frame.h, -right, top, frame.w, frame.h);
+            ctx.drawImage(spriteSheet, frame.x, frame.y, frame.w, frame.h, -right, top, frame.w, frame.h);
             ctx.scale(-1, 1);
         }
 
@@ -59,8 +68,14 @@ class Player {
     }
 
     update(cMap, keys, lastKeys, camera) {
+        if (this.y > WH * 1.5 || this.health == 0) { //respawn
+            this.x = 100;
+            this.y = 200;
+            this.health = this.maxhealth;
+        }
         this.animator.update();
-        if (!swapInProgress) { //controls (switch to "takingInput" condition)
+        if (this.hurtTimer-- < 0) this.hurtTimer = 0;
+        if (!swapInProgress && !this.animCheck("attack") && !peeking) { //controls (switch to "takingInput" condition)
             if (keys[LEFT_KEY]) { //left
                 this.vx -= this.ax;
                 // if (this.vx < -this.mvx) this.vx = -this.mvx;
@@ -85,6 +100,20 @@ class Player {
             if (!keys[UP_KEY] && lastKeys[UP_KEY] && this.animCheck("jumpcrouch")) {
                 //short hop
                 this.jv = this.shortjv;
+            }
+            if (keys[SPACE_KEY] && !lastKeys[SPACE_KEY] && isP1) {
+                this.animator.play("attack", t => {
+                    if (t >= ATTACK_DUR) {
+                        if (this.facingRight) {
+                            let hitl = this.x + this.hw + 40;
+                            phitboxes.push(new Hitbox(hitl, this.y, 140, 60, this.facingRight));
+                        } else {
+                            let hitl = this.x - this.hw - 40;
+                            phitboxes.push(new Hitbox(hitl, this.y, 140, 60, this.facingRight))
+                        }
+                        this.animator.play("stand");
+                    }
+                });
             }
         }
         let omidair = this.midair;
@@ -145,10 +174,11 @@ class Player {
             this.jumps = 1;
             if (ovy > 8) { // hard landing
                 camera.shake(4);
-                this.animator.play("land", t => {
+                phitboxes.push(new Hitbox(this.x, this.y+20, this.w, 30, this.facingRight))
+                if (!this.animCheck("attack")) this.animator.play("land", t => {
                     if (t >= P_LAND_DUR) {
                         // might be bad practice... maybe setup timers on the player instead
-                        this.animator.play("stand");
+                        if (!this.animCheck("attack")) this.animator.play("stand");
                     }
                 });
             } 
@@ -160,12 +190,12 @@ class Player {
         this.vx *= FRICTION; //maybe different value when midair? switch to lerp?
         if (Math.abs(this.vx) - .01 < 0) this.vx = 0;
         
-        if (this.midair && !this.animCheck("jumpcrouch") && this.midairTimer > COYOTE_DUR)
+        if (this.midair && !this.animCheck("jumpcrouch") && this.midairTimer > COYOTE_DUR && !this.animCheck("attack"))
         {
             this.animator.play("midair"); //need timeout? (custom timeout?)
         }
         
-        if (!this.midair && !this.animCheck("land") && !this.animCheck("jumpcrouch")) {
+        if (!this.midair && !this.animCheck("land") && !this.animCheck("jumpcrouch") && !this.animCheck("attack")) {
             if (Math.abs(this.vx) < .5) this.animator.play("stand");
             else this.animator.play("run");
         }
@@ -263,9 +293,10 @@ class Player {
         );
 
         this.animator.register("stand", [
-                { x:11, y:13, w:76, h:96, px:45, py:106 },
+                { x:42, y:704, w:74, h:112, px:93, py:814},
+                { x:158, y:709, w:78, h:107, px:213, py:814 },
             ],
-            (() => 0) //always select frame 0
+            getLoopingFrameSelector(80, 2)
         );
 
         let runningFrames = [
@@ -285,6 +316,17 @@ class Player {
         ];
         this.animator.register("swap", swappingFrames,
             (t => 0)
+        );
+
+        let attackFrames = [
+            { x:5, y:487, w:120, h:101, px:89, py:585 },
+            { x:177, y:435, w:120, h:169, px:255, py:610 },
+            { x:358, y:421, w:103, h:206, px:417, py:626 },
+            { x:279, y:653, w:161, h:108, px:326, py:752 },
+            
+        ]        
+        this.animator.register("attack", attackFrames,
+            getTimeBasedFrameSelector(ATTACK_DUR, attackFrames.length)
         );
     }
 

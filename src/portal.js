@@ -14,7 +14,7 @@ class Portal {
     this.animator.register("active",
       [
         { x:93, y:39, w:69, h:48, px:126, py:73},
-        { x:174, y:0, w:66, h:87, px:205, py:73},
+        { x:174, y:0, w:66, h:87, px:206, py:73},
       ],
       getLoopingFrameSelector(40, 2)
     );
@@ -33,7 +33,7 @@ class Portal {
       this.animator.play("idle");
       return null;
     }
-    this.animator.play("active");
+    this.animator.play("active", t => camera.shake(1));
     if (keys[PEEK_KEY]) return this;
     return null;
   }

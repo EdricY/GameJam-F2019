@@ -23,6 +23,9 @@ class World {
 
     specialPixelHandler(colorstr, x, y) {
         if (colorstr == PORTAL_COLOR) portals.push(new Portal(x, y));
-        if (colorstr == PUMPKIN_COLOR) pumpkins.push(new Pumpkin(x, y));
+        if (colorstr == PUMPKIN_COLOR) {
+            gravestones.push(new Gravestone(x, y));
+            pumpkins.push(new Pumpkin(x, y));
+        }
     }
 }

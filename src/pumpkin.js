@@ -4,18 +4,17 @@ class Pumpkin {
     this.y = y;
     this.grown = false;
     this.animator = new Animator();
+    let z = (Math.random() - Math.random()) * PUMPKIN_GROWTH_TIME / 5;
+    let growthTime = PUMPKIN_GROWTH_TIME + z;
     let pumpkinFrames = [
-      { x:1, y:25, w:39, h:25, px:23, py:47},
-      { x:58, y:18, w:49, h:32, px:77, py:47},
-      { x:106, y:21, w:49, h:29, px:131, py:47},
-      { x:157, y:18, w:53, h:32, px:184, py:47},
-      { x:263, y:10, w:50, h:40, px:292, py:47},
-      { x:319, y:1, w:58, h:49, px:347, py:47},
-      { x:373, y:0, w:49, h:50, px:400, py:47},
+      { x:13, y:38, w:35, h:21, px:39, py:55 },
+      { x:62, y:26, w:53, h:32, px:99, py:56},
+      { x:129, y:17, w:60, h:42, px:168, py:57 },
+      // { x:10, y:70, w:89, h:51, px:54, py:119 },
     ];
 
     this.animator.register("grow", pumpkinFrames,
-      getTimeBasedFrameSelector(PUMPKIN_GROWTH_TIME, pumpkinFrames.length)
+      getTimeBasedFrameSelector(growthTime, pumpkinFrames.length)
     );
     this.animator.play("grow");
   }
@@ -32,9 +31,15 @@ class Pumpkin {
   }
 
   break() {
-    this.animator.t = 0;
     if (this.animator.t > PUMPKIN_GROWTH_TIME) {
+      let numHearts = Math.floor(Math.random() * 4) + 1;
+      for (let i = 0; i < numHearts; i++) {
+        hearts.push(new Heart(this.x, this.y))
+      }
       console.log('pumpkin break!')
+      if (this.animator.t > PUMPKIN_GROWTH_TIME) {
+      }
     }
+    this.animator.t = 0;
   }
 }

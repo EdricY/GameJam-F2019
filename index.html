@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" href="index.css">
   <script>
     var loadedResrcs = 0;
-    const RESRCS_TO_LOAD = 11;
+    const RESRCS_TO_LOAD = 24;
     function resrcLoaded() { loadedResrcs++; loadmsg.innerHTML += "."; }
   </script>
 </head>
@@ -14,7 +14,7 @@
   <div id="connectDiv">
     <div>
       <label for="hostID">Host ID:</label>
-      <input id="hostID" type="text" value="maybehector" maxlength="25">
+      <input id="hostID" type="text" value="penelope" maxlength="25">
     </div>
     <div>
       <button onclick="connect()">Connect</button>
@@ -33,24 +33,40 @@
 <img hidden id='p2sprites' onload="resrcLoaded()" src='resrc/girl2Sheet.png'>
 <img hidden id='portalSprites' onload="resrcLoaded()" src='resrc/portalSheet.png'>
 <img hidden id='pumpkinSprites' onload="resrcLoaded()" src='resrc/pumpkinsheet.png'>
+<img hidden id='zombieImg' onload="resrcLoaded()" src='resrc/zombie.png'>
+<img hidden id='heartImg' onload="resrcLoaded()" src='resrc/heart.png'>
+<img hidden id='graveImg' onload="resrcLoaded()" src='resrc/gravestone.png'>
 <img hidden id='cmapImg0' onload="resrcLoaded()" src='resrc/L0.png'>
 <img hidden id='cmapImg1' onload="resrcLoaded()" src='resrc/L1.png'>
 <img hidden id='cmapImg2' onload="resrcLoaded()" src='resrc/L2.png'>
 <img hidden id='cmapImg3' onload="resrcLoaded()" src='resrc/L3.png'>
 <img hidden id='cmapImg4' onload="resrcLoaded()" src='resrc/L4.png'>
 <img hidden id='cmapImg5' onload="resrcLoaded()" src='resrc/L5.png'>
-<img hidden id='backImg2' onload="resrcLoaded()" src='resrc/backimg2.png'>
+<img hidden id='cmapImg6' onload="resrcLoaded()" src='resrc/L6.png'>
+<img hidden id='cmapImg7' onload="resrcLoaded()" src='resrc/L7.png'>
+<img hidden id='cmapImg8' onload="resrcLoaded()" src='resrc/L8.png'>
+<img hidden id='backImg0' onload="resrcLoaded()" src='resrc/G0.png'>
+<img hidden id='backImg1' onload="resrcLoaded()" src='resrc/G1.png'>
+<img hidden id='backImg2' onload="resrcLoaded()" src='resrc/G2.png'>
+<img hidden id='backImg3' onload="resrcLoaded()" src='resrc/G3.png'>
+<img hidden id='backImg4' onload="resrcLoaded()" src='resrc/G4.png'>
+<img hidden id='backImg5' onload="resrcLoaded()" src='resrc/G5.png'>
+<img hidden id='backImg6' onload="resrcLoaded()" src='resrc/G6.png'>
+<img hidden id='backImg7' onload="resrcLoaded()" src='resrc/G7.png'>
 
 <script src="src/peer.js"></script> <!-- https://peerjs.com/ -->
 <script src="src/constants.js"></script>
 <script src="src/keys.js"></script>
+<script src="src/hearts.js"></script>
 <script src="src/imgutil.js"></script>
 <script src="src/collisionMap.js"></script>
 <script src="src/camera.js"></script>
+<script src="src/hitbox.js"></script>
 <script src="src/player.js"></script>
 <script src="src/animator.js"></script>
 <script src="src/portal.js"></script>
 <script src="src/pumpkin.js"></script>
+<script src="src/baddies.js"></script>
 <script src="src/world.js"></script>
 <script defer src="src/game.js"></script>
 
@@ -72,6 +88,9 @@
   var swapMsgSent = false;
   var swapFollowUpTimer = 60;
   var swapData = {};
+  var isP1 = false;
+
+  var gameWon = false;
 
   function host() {
     let peerid = hostID.value
@@ -180,10 +199,16 @@
   }
 
   function getSwapData() {
-    return {
-      x: activePortal.x,
-      y: activePortal.y,
+    let data = {}
+    data.px = activePortal.x;
+    data.py = activePortal.y;
+    if (isP1) {
+    
+    } else {
+      
     }
+
+    return data;
   }
 
   function newPacket(type, obj){
@@ -192,11 +217,36 @@
 
   function attemptInit() {
     if (loadedResrcs == RESRCS_TO_LOAD) {
+      isP1 = hosting;
       clearInterval(loadInterval)
-      gameInit(hosting);
+      gameInit();
       loadmsg.classList.add("nodisplay");
       myPeerID.classList.add("nodisplay");
       canvasDiv.classList.remove("nodisplay");
+    }
+  }
+
+  function winGame() {
+    gameWon = true;
+    requestAnimationFrame(showWinScreen)
+  }
+
+  var winTimer = 200;
+  var winPhase1 = true;
+  function showWinScreen() {
+    if (winPhase1) {
+      ctx.globalAlpha = .2;
+      ctx.fillStyle = "white"
+      ctx.fillRect(0, 0, VW, VH);
+
+      ctx.globalAlpha = 1;
+      ctx.fillStyle = "black";
+      ctx.font = "20px serif";
+      ctx.textAlign = "center";
+      ctx.textBaseline = "alphabetic";
+      ctx.fillText("You Win!", VW/2, VH/2);
+      if (winTimer-- <= 0) winPhase1 = false;
+      requestAnimationFrame(showWinScreen)
     }
   }
 
