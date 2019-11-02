@@ -8,14 +8,14 @@ class CollisionMap {
     }
 
     // returns x pos of collision or null
-    getCollisionDown(bottom, x, halfwidth) {
+    getCollisionDown(bottom, x, halfwidth, downKey) {
         let r = Math.round(bottom) + 1; //row below bottom
         if (r >= WH || r < 0) return null;       //world borders
         x = Math.round(x) - halfwidth;  //left
         //should pass in keys, but too lazy
         for (let c = x; c < x + halfwidth*2; c++) {
             let val = this.collMatrix[r][c];
-            if (val == 1 || (val === 0 && !keys[83])) {
+            if (val == 1 || (val === 0 && !downKey)) {
                 return c;
             }
         }
@@ -36,15 +36,17 @@ class CollisionMap {
     }
 
     // returns y pos of collision or null
-    getCollisionRight(right, y, height, doStepUp=false) {
+    // doStepUp - if true, do white collision up to step height
+    getCollisionRight(right, y, height, doStepUp=false, downKey) {
         let c = Math.round(right) + 1;  //col after right
         if (c >= WW) return null; //world right
         y = Math.round(y);              //bottom
         for (let r = y-height+1; r <= y; r++) { //scan downward to find highest collision
-            if (r < 0 || r >= WH) return null;
+            if (r < 0) continue 
+            if (r >= WH) return null;
             let val = this.collMatrix[r][c];
             if (val == 1) return r;
-            if (doStepUp && r > y - STEP_UP_GRACE && val === 0 && !keys[83]) {
+            if (doStepUp && r > y - STEP_UP_GRACE && val === 0 && !downKey) {
                 return r;
             } 
         }
@@ -52,15 +54,16 @@ class CollisionMap {
     }
 
     // returns y pos of collision or null
-    getCollisionLeft(left, y, height, doStepUp=false) {
+    getCollisionLeft(left, y, height, doStepUp=false, downKey) {
         let c = Math.round(left) - 1;   //col before left
         if (c < 0) return null;   //screen left
         y = Math.round(y);              //bottom
         for (let r = y-height+1; r <= y; r++) { //scan downward
-            if (r < 0 || r >= WH) return null;
+            if (r < 0) continue 
+            if (r >= WH) return null;
             let val = this.collMatrix[r][c];
             if (val == 1) return r;
-            if (doStepUp && r > y - STEP_UP_GRACE && val === 0 && !keys[83]) {
+            if (doStepUp && r > y - STEP_UP_GRACE && val === 0 && !downKey) {
                 return r;
             } 
         }

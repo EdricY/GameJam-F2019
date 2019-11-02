@@ -1,5 +1,24 @@
+#canvasDiv {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  width: 100%;
+}
 #canvas {
   width: 100%;
+  background-color: #AAA;
+  align-self: center;
+}
+
+#body {
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-flow: column;
+  height: 100vh;
+  justify-content: center;
+  align-items: center;
 }
 
 .nodisplay {

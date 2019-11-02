@@ -36,7 +36,7 @@ function img2ColorDict(img, values) {
  * imageData - imageData with pixels of colors inside pixelDict
  * pixelDict - mapping of pixel colors to matrix values
  */
-function imageData2Matrix(imageData, pixelDict) {
+function imageData2Matrix(imageData, pixelDict, callback) {
     let matrix = [];
     let data = imageData.data;
     for (let row = 0; row < imageData.height; row++) {
@@ -52,6 +52,7 @@ function imageData2Matrix(imageData, pixelDict) {
             let val = pixelDict[colorstr];
             if (val == undefined) val = null;
             matrix[row].push(val);
+            callback(colorstr, col, row);
         }
     }
     return matrix;
@@ -59,8 +60,8 @@ function imageData2Matrix(imageData, pixelDict) {
 
 /* img - img or canvas to convert to matrix
  */
-function img2Matrix(img, pixelDict) {
-    return imageData2Matrix(img2ImageData(img), pixelDict);
+function img2Matrix(img, pixelDict, callback) {
+    return imageData2Matrix(img2ImageData(img), pixelDict, callback);
 }
 
 /* Creates a matrix of values corresponding to alpha values in imageData

@@ -52,17 +52,17 @@ class Player {
     update(cMap, keys, lastKeys, camera) {
         this.animator.update();
         if (true) { //controls (switch to "takingInput" condition)
-            if (keys[65]) { //left
+            if (keys[LEFT_KEY]) { //left
                 this.vx -= this.ax;
                 // if (this.vx < -this.mvx) this.vx = -this.mvx;
                 if (this.vx < 0) this.facingRight = false;
             }
-            if (keys[68]) { //right
+            if (keys[RGHT_KEY]) { //right
                 this.vx += this.ax;
                 // if (this.vx > this.mvx) this.vx = this.mvx;
                 if (this.vx > 0) this.facingRight = true;
             }
-            if (keys[87] && !lastKeys[87] && this.midairTimer < COYOTE_DUR) { //up
+            if (keys[UP_KEY] && !lastKeys[UP_KEY] && this.midairTimer < COYOTE_DUR) { //up
                 this.jv = -20;
                 this.animator.play("jumpcrouch", t => {
                     if (t > P_CROUCH_DUR) {
@@ -73,7 +73,7 @@ class Player {
                     }
                 });
             }
-            if (!keys[87] && lastKeys[87] && this.animCheck("jumpcrouch")) {
+            if (!keys[UP_KEY] && lastKeys[UP_KEY] && this.animCheck("jumpcrouch")) {
                 //short hop
                 this.jv = -13;
             }
@@ -169,7 +169,7 @@ class Player {
      * returns x-collision or null
      */
     scootDown(cMap) {
-        let x_cls = cMap.getCollisionDown(this.y, this.x, this.hw);
+        let x_cls = cMap.getCollisionDown(this.y, this.x, this.hw, keys[DN_KEY]);
         //TODO: fix clinging to right edge of screen
         if (x_cls == null) {
             this.y++;
@@ -200,7 +200,7 @@ class Player {
      */
     scootRight(cMap) {
         let right = this.x+this.hw-1;
-        let y_cls = cMap.getCollisionRight(right, this.y, this.h, true);
+        let y_cls = cMap.getCollisionRight(right, this.y, this.h, true, keys[DN_KEY]);
         if (y_cls == null) {
             this.x++;
         } else { //hit wall
@@ -213,7 +213,7 @@ class Player {
      * returns y-collision or null
      */
     scootLeft(cMap) {
-        let y_cls = cMap.getCollisionLeft(this.x-this.hw, this.y, this.h, true);
+        let y_cls = cMap.getCollisionLeft(this.x-this.hw, this.y, this.h, true, keys[DN_KEY]);
         if (y_cls == null) {
             this.x--;
         } else { //hit wall
@@ -264,7 +264,7 @@ class Player {
             { x:220, y:143, w:79, h:92, px:260, py:232 },
         ];
         this.animator.register("run", runningFrames,
-        getLoopingFrameSelector(40, runningFrames.length)
+        getLoopingFrameSelector(P_RUN_CYCLE_DUR, runningFrames.length)
         );
     }
 

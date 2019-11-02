@@ -4,13 +4,20 @@ var redraw = false;
 var player;
 var camera = new Camera();
 var world;
+var peekImg;
 var gameState = {
     update: function () { },
     draw: function () { },
 }
 
+var portals = [];
 
-function gameInit() {
+
+function gameInit(isP1) {
+    let psprites;
+    if (isP1) psprites = p1sprites;
+    else psprites = p2sprites;
+
     gameState.update = gameUpdate;
     gameState.draw = gameDraw;
     player = new Player(psprites);
@@ -18,27 +25,40 @@ function gameInit() {
     camera.setTarget(player);
 
     cMapImgs = [
+        cmapImg0,
         cmapImg1,
         cmapImg2,
         cmapImg3,
         cmapImg4,
+        cmapImg5,
     ];
     
-    mapImgs = [
-        backImg1,
-        cmapImg2,//replace with backimgs later
+    mapImgs = [//replace with backimgs later
+        cmapImg0,
+        cmapImg1,
+        backImg2,
         cmapImg3,
         cmapImg4,
+        cmapImg5,
     ];
 
-    world = new World(cMapImgs, mapImgs) 
+    world = new World(cMapImgs, mapImgs)
+
+    portals.push(new Portal(60, VH/2 + 150))
 
     requestAnimationFrame(tick);
 }
 
 function gameUpdate() {
     camera.update();
+    for (let p of portals) p.update(); //sets peeking
+
     player.update(world.cMap, keys, lastKeys, camera);
+    
+    if (peeking === true) {
+        connection.send(newPacket(PEEKREQ));
+    }
+
     lastKeys = JSON.parse(JSON.stringify(keys)); //TODO: custom deep copy
 }
 
@@ -47,10 +67,18 @@ function gameDraw() {
     ctx.save();
     camera.moveCtx(ctx);
 
-    world.draw(ctx, camera.x + VW/2)
+    let centerx = camera.x + VW/2;
+    world.draw(ctx, centerx)
+    for (let p of portals) p.draw(ctx);
+
     player.draw(ctx);
     ctx.restore();
     drawHUD();
+    if (peeking && peekImg) {
+        ctx.drawImage(peekImg, VW/4, VH/4, VW/2, VH/2);
+        ctx.strokeStyle = "darkblue";
+        ctx.strokeRect(VW/4, VH/4, VW/2, VH/2)
+    }
 }
 
 
@@ -83,6 +111,7 @@ function drawHUD() {
 		'player.vy',
         'player.midair',
         'player.animator.state',
+        'peeking',
 	]
 	let spacing = 20;
 	for (let i in properties){
