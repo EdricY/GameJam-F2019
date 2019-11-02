@@ -40,6 +40,11 @@ class Player {
         let frame = this.animator.getFramePositionData(this);
         let top = this.y - (frame.py - frame.y);
         let left = this.x - (frame.px - frame.x);
+
+        let alpha = ctx.globalAlpha;
+        if (swapTimer > 0) ctx.globalAlpha = swapTimer / 60;
+        if (swapFollowUpTimer > 0) ctx.globalAlpha = 1 - swapFollowUpTimer / 60;
+
         if (this.facingRight) {
             ctx.drawImage(this.spriteSheet, frame.x, frame.y, frame.w, frame.h, left, top, frame.w, frame.h);
         } else {
@@ -48,6 +53,8 @@ class Player {
             ctx.drawImage(this.spriteSheet, frame.x, frame.y, frame.w, frame.h, -right, top, frame.w, frame.h);
             ctx.scale(-1, 1);
         }
+
+        ctx.globalAlpha = alpha;
         
     }
 

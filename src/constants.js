@@ -32,6 +32,7 @@ const P_RUN_CYCLE_DUR = 40;
 const COYOTE_DUR = 4;
 const CHANNEL_DUR = 4;
 const SWAP_DUR = 60;
+const PUMPKIN_GROWTH_TIME = 300;
 
 
 //map things
@@ -42,6 +43,7 @@ const PIXELDICT = { //TODO: get from dictonary img instead
 }
 
 PORTAL_COLOR = '163,73,164,255'
+PUMPKIN_COLOR = '255,127,39,255'
 
 
 //math things

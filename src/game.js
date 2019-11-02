@@ -10,6 +10,7 @@ var gameState = {
 }
 
 var portals = [];
+var pumpkins = [];
 var activePortal;
 
 
@@ -58,6 +59,9 @@ function gameUpdate() {
             activePortal = p;
         }
     }
+
+    for (let p of pumpkins) p.update();
+
     peeking = activePortal != null;
 
     player.update(world.cMap, keys, lastKeys, camera);
@@ -97,9 +101,12 @@ function gameDraw() {
 
     let centerx = camera.x + VW/2;
     world.draw(ctx, centerx)
-    for (let p of portals) p.draw(ctx);
-
+    
     player.draw(ctx);
+
+    for (let p of portals) p.draw(ctx);
+    for (let p of pumpkins) p.draw(ctx);
+    
     ctx.restore();
     drawHUD();
     if (peeking && peekImgReady && swapFollowUpTimer == 0) {
@@ -143,6 +150,7 @@ function drawHUD() {
         'player.animator.state',
         'peeking',
         'swapTimer',
+        'swapFollowUpTimer',
 	]
 	let spacing = 20;
 	for (let i in properties){

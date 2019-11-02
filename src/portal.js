@@ -7,14 +7,14 @@ class Portal {
     this.animator = new Animator();
     this.animator.register("idle",
       [
-        { x:184, y:24, w:70, h:36, px:220, py:57 },
+        { x:11, y:39, w:72, h:48, px:46, py:73},
       ],
       (t => 0)
     );
     this.animator.register("active",
       [
-        { x:11, y:10, w:72, h:51, px:47, py:57 },
-        { x:99, y:12, w:70, h:49, px:134, py:57 },
+        { x:93, y:39, w:69, h:48, px:126, py:73},
+        { x:174, y:0, w:66, h:87, px:205, py:73},
       ],
       getLoopingFrameSelector(40, 2)
     );
