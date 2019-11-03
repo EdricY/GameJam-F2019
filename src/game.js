@@ -251,5 +251,5 @@ function drawHUD() {
 	// }
 }
 
-
+resrcLoaded();
 

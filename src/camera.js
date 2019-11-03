@@ -56,8 +56,8 @@ class Camera {
         dx = this.target.x - this.xAnchor;
         dy = this.target.y - this.yAnchor;
         if      (dx > .6 * VW) this.xAnchor += dx - .6 * VW; //right
-        else if (dx < .2 * VW) this.xAnchor += dx - .2 * VW; //left
-        if      (dy > .8 * VH) this.yAnchor += dy - .8 * VH; //down
+        else if (dx < .2 * VW) this.xAnchor += dx - .3 * VW; //left
+        if      (dy > .8 * VH) this.yAnchor += dy - .7 * VH; //down
         else if (dy < .4 * VH) this.yAnchor += dy - .4 * VH; //up
     }
 

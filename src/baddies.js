@@ -133,7 +133,7 @@ class Zombie {
   update(cMap) {
     this.animator.update();
     //set goLeft or goRight and doJump based on behavior
-    if (this.y > WH) {
+    if (this.y > WH*1.5) {
       this.health = -50;
     }
     if (this.hurtTimer <= 0) {

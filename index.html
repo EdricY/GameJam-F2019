@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" href="index.css">
   <script>
     var loadedResrcs = 0;
-    const RESRCS_TO_LOAD = 29;
+    const RESRCS_TO_LOAD = 30;
     function resrcLoaded() { loadedResrcs++; loadmsg.innerHTML += "."; }
 
     function drawTitle() {
@@ -121,11 +121,12 @@
 
     peer.on('error', () => {
       myPeerID.innerHTML = "There was an error setting up the connection. Please reload and try again later";
+      setTimeout(() => location.reload(), 2000);
     });
 
     peer.on('close', () => {
       myPeerID.innerHTML = "The connection was closed.";
-      location.reload();
+      setTimeout(() => location.reload(), 2000);
     });
 
     hosting = true;
@@ -147,17 +148,17 @@
     peer.on('error', () => {
       console.log('client error')
       myPeerID.innerHTML = "There was an error finding the host. Please try again.";
-      location.reload();
+      setTimeout(() => location.reload(), 2000);
     });
     peer.on('close', () => {
       console.log('client close')
       myPeerID.innerHTML = "The connection was closed.";
-      location.reload();
+      setTimeout(() => location.reload(), 2000);
     });
     peer.on('disconnected', () => {
       console.log('client disconnect')
       myPeerID.innerHTML = "The connection was disconnected.";
-      location.reload();
+      setTimeout(() => location.reload(), 2000);
     });
 
     peer.on('open', () => {
@@ -269,7 +270,7 @@
     }
   }
 
-
+  
 </script>
 
 </html>
