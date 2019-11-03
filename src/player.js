@@ -111,6 +111,8 @@ class Player {
                             let hitl = this.x - this.hw - 40;
                             phitboxes.push(new Hitbox(hitl, this.y, 140, 60, this.facingRight))
                         }
+                        axeSound.currentTime = 0;
+                        axeSound.play();
                         this.animator.play("stand");
                     }
                 });
@@ -322,8 +324,7 @@ class Player {
             { x:5, y:487, w:120, h:101, px:89, py:585 },
             { x:177, y:435, w:120, h:169, px:255, py:610 },
             { x:358, y:421, w:103, h:206, px:417, py:626 },
-            { x:279, y:653, w:161, h:108, px:326, py:752 },
-            
+            { x:281, y:663, w:165, h:143, px:323, py:796 },
         ]        
         this.animator.register("attack", attackFrames,
             getTimeBasedFrameSelector(ATTACK_DUR, attackFrames.length)

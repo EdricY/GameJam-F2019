@@ -5,8 +5,12 @@
   <link rel="stylesheet" type="text/css" href="index.css">
   <script>
     var loadedResrcs = 0;
-    const RESRCS_TO_LOAD = 24;
+    const RESRCS_TO_LOAD = 29;
     function resrcLoaded() { loadedResrcs++; loadmsg.innerHTML += "."; }
+
+    function drawTitle() {
+      document.getElementById('canvas').getContext("2d").drawImage(titleImg, 0, 0, renderer.width, renderer.height)
+    }
   </script>
 </head>
 
@@ -53,6 +57,18 @@
 <img hidden id='backImg5' onload="resrcLoaded()" src='resrc/G5.png'>
 <img hidden id='backImg6' onload="resrcLoaded()" src='resrc/G6.png'>
 <img hidden id='backImg7' onload="resrcLoaded()" src='resrc/G7.png'>
+<img hidden id='backImg8' onload="resrcLoaded()" src='resrc/G8.png'>
+<img hidden id='backgroundImg1' onload="resrcLoaded()" src='resrc/backdrop night.png'>
+<img hidden id='backgroundImg2' onload="resrcLoaded()" src='resrc/backdrop day.png'>
+<img hidden id='titleImg' onload="resrcLoaded(); drawTitle()" src='resrc/title screen.png'>
+<img hidden id='creditsImg' onload="resrcLoaded()" src='resrc/credits.png'>
+
+<audio id="p1audio" src="resrc/wallace_badworld.wav" loop></audio>
+<audio id="p2audio" src="resrc/wallace_goodworld.wav" loop></audio>
+<audio id="pumpkinSound" src="resrc/pumpkinsound.wav"></audio>
+<audio id="attackSound" src="resrc/attack.wav"></audio>
+<audio id="axeSound" src="resrc/axesound.wav"></audio>
+<audio id="zombieDieSound" src="resrc/zombiedead.wav"></audio>
 
 <script src="src/peer.js"></script> <!-- https://peerjs.com/ -->
 <script src="src/constants.js"></script>
@@ -68,6 +84,7 @@
 <script src="src/pumpkin.js"></script>
 <script src="src/baddies.js"></script>
 <script src="src/world.js"></script>
+<script src="src/particles.js"></script>
 <script defer src="src/game.js"></script>
 
 <script>
@@ -89,6 +106,7 @@
   var swapFollowUpTimer = 60;
   var swapData = {};
   var isP1 = false;
+
 
   var gameWon = false;
 
@@ -236,19 +254,21 @@
   function showWinScreen() {
     if (winPhase1) {
       ctx.globalAlpha = .2;
-      ctx.fillStyle = "white"
-      ctx.fillRect(0, 0, VW, VH);
+      ctx.drawImage(creditsImg, 0, 0, VW, VH);
+      // ctx.fillStyle = "white"
+      // ctx.fillRect(0, 0, VW, VH);
 
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = "black";
-      ctx.font = "20px serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "alphabetic";
-      ctx.fillText("You Win!", VW/2, VH/2);
-      if (winTimer-- <= 0) winPhase1 = false;
+      // ctx.globalAlpha = 1;
+      // ctx.fillStyle = "black";
+      // ctx.font = "20px serif";
+      // ctx.textAlign = "center";
+      // ctx.textBaseline = "alphabetic";
+      // ctx.fillText("You Win!", VW/2, VH/2);
+      // if (winTimer-- <= 0) winPhase1 = false;
       requestAnimationFrame(showWinScreen)
     }
   }
+
 
 </script>
 

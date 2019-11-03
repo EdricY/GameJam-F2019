@@ -41,7 +41,9 @@ class Gravestone {
     //play animation => then add zombie
     this.animator.play("spawn", t => {
       if (t >= this.spawnDuration) {
-        zombies.push(new Zombie(this.x, this.y))
+        if (zombies.length < 200) {
+          zombies.push(new Zombie(this.x, this.y))
+        }
         this.animator.play("idle");
       }
     });
@@ -51,7 +53,7 @@ class Gravestone {
 
 class Zombie {
   constructor(x, y) {
-    this.health = 3;
+    this.health = 3 + Math.floor(Math.random() * 4);
     this.hurtTimer = 0;
     this.x = x;
     this.y = y+ZOM_H;
@@ -88,7 +90,7 @@ class Zombie {
     if (Math.abs(dx) > VW/2) return false;
     let dy = player.y - this.y;
     if (Math.abs(dy) > VH/2) return false;
-    if (this.facingRight != dx > 0) return false;
+    // if (this.facingRight != dx >= 0) return false;
 
     // actually hit player (bad, I know)
     if (Math.abs(dx) < player.hw + ZOM_W/2) {
@@ -131,6 +133,9 @@ class Zombie {
   update(cMap) {
     this.animator.update();
     //set goLeft or goRight and doJump based on behavior
+    if (this.y > WH) {
+      this.health = -50;
+    }
     if (this.hurtTimer <= 0) {
       if (this.chasing)
       {

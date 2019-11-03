@@ -17,29 +17,37 @@ class Hitbox {
   }
 
   hit() {
-    for (let p of pumpkins) {
-      let dx = Math.abs(this.cx - p.x);
-      let dy = Math.abs(this.cy - p.y);
-      if (dx > this.w) continue;
-      if (dy > this.h) continue;
-      p.break();
+    if (!isP1) {
+      for (let p of pumpkins) {
+        let dx = Math.abs(this.cx - p.x);
+        let dy = Math.abs(this.cy - p.y);
+        if (dx > this.w) continue;
+        if (dy > this.h) continue;
+        p.break();
+      }
     }
-    let numHit = 0;
-    for (let z of zombies) {
-      let dx = Math.abs(this.cx - z.x);
-      let dy = Math.abs(this.cy - z.y);
-      if (dx > this.w) continue;
-      if (dy > this.h) continue;
-      // hit
-      numHit++
-      z.vy = -10;
-      z.vx = -20 + Math.random() * 10 - numHit;
-      if (z.vx > 0) z.vx = 0;
-      if (this.facingRight) z.vx *= -1;
-      z.health--;
-      z.hurtTimer = 50;
-      z.chasing = true;
-      camera.shake(10);
+    else {
+      let numHit = 0;
+      for (let z of zombies) {
+        let dx = Math.abs(this.cx - z.x);
+        let dy = Math.abs(this.cy - z.y);
+        if (dx > this.w) continue;
+        if (dy > this.h) continue;
+        // hit
+        numHit++
+        z.vy = -10;
+        z.vx = -20 + Math.random() * 10 - numHit;
+        if (z.vx > 0) z.vx = 0;
+        if (this.facingRight) z.vx *= -1;
+        z.health--;
+        z.hurtTimer = 50;
+        z.chasing = true;
+      }
+      if (numHit > 0) {
+        camera.shake(10);
+        attackSound.currentTime = 0;
+        attackSound.play();
+      }
     }
     this.done = true;
   }

@@ -47,14 +47,11 @@ function gameInit() {
         backImg5,
         backImg6,
         backImg7,
-        cmapImg8, //replace me
+        backImg8,
     ];
 
     world = new World(cMapImgs, mapImgs)
-    portals.push(new Portal(60, VH/2 + 150))
-    zombies.push(new Zombie(100, 600));
 
-    console.log(portals);
     winportal = portals[0];
     for (let p of portals) {
         if (p.x > winportal.x) {
@@ -62,11 +59,16 @@ function gameInit() {
         }
     }
 
-    requestAnimationFrame(tick);
+    if (isP1) p1audio.play();
+    else p2audio.play();
+
+
+    setTimeout( () => requestAnimationFrame(tick), 500);
 }
 
 function gameUpdate() {
     camera.update();
+    Particles.update();
 
     activePortal = null;
     for (let p of portals) {
@@ -85,6 +87,10 @@ function gameUpdate() {
         zombies[i].update(world.cMap);
         // do zombie death handling
         if (zombies[i].health <= 0) {
+            if (zombies[i].health > -10) {
+                zombieDieSound.currentTime = 0;
+                zombieDieSound.play();
+            }
             zombies.splice(i, 1);
         }
     }
@@ -122,6 +128,7 @@ function gameUpdate() {
                 winGame();
             }
 
+            swapAudio();
             isP1 = !isP1;
             swapTimer = 60;
             swapFollowUpTimer = 60;
@@ -129,6 +136,9 @@ function gameUpdate() {
             swapMsgSent = false;
 
             zombies = [];
+            hearts = [];
+            
+            // I think it's better without this...
             player.x = swapData.px
             player.y = swapData.py
 
@@ -145,6 +155,8 @@ function gameUpdate() {
 
 function gameDraw() {
     ctx.clearRect(0, 0, VW, VH);
+    if (isP1) ctx.drawImage(backgroundImg1, 0, 0);
+    else ctx.drawImage(backgroundImg2, 0, 0);
     ctx.save();
     camera.moveCtx(ctx);
 
@@ -164,7 +176,7 @@ function gameDraw() {
     }
 
     // for (let h of phitboxes) h.draw(ctx);
-    
+    Particles.draw(ctx);
     ctx.restore();
     drawHUD();
     if (peeking && peekImgReady && swapFollowUpTimer == 0) {
@@ -173,6 +185,20 @@ function gameDraw() {
         ctx.strokeRect(VW/4, VH/4, VW/2, VH/2)
     } else if (!peeking) {
         peekImgReady = false;
+    }
+}
+
+function swapAudio() { //do before isP1 switches
+    if (isP1) {
+        let audiotime = p1audio.currentTime;
+        p1audio.pause();
+        p2audio.currentTime = audiotime;
+        p2audio.play();
+    } else {
+        let audiotime = p2audio.currentTime;
+        p2audio.pause();
+        p1audio.currentTime = audiotime;
+        p1audio.play();
     }
 }
 

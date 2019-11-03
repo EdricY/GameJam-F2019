@@ -34,6 +34,7 @@ class Portal {
       return null;
     }
     this.animator.play("active", t => camera.shake(1));
+    Particles.sprayUp(this.x, this.y, "cyan")
     if (keys[PEEK_KEY]) return this;
     return null;
   }

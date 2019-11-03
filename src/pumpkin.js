@@ -2,10 +2,9 @@ class Pumpkin {
   constructor(x, y) {
     this.x = x;
     this.y = y;
-    this.grown = false;
     this.animator = new Animator();
-    let z = (Math.random() - Math.random()) * PUMPKIN_GROWTH_TIME / 5;
-    let growthTime = PUMPKIN_GROWTH_TIME + z;
+    // let z = (Math.random() - Math.random()) * PUMPKIN_GROWTH_TIME / 5;
+    // let growthTime = PUMPKIN_GROWTH_TIME + z;
     let pumpkinFrames = [
       { x:13, y:38, w:35, h:21, px:39, py:55 },
       { x:62, y:26, w:53, h:32, px:99, py:56},
@@ -14,7 +13,7 @@ class Pumpkin {
     ];
 
     this.animator.register("grow", pumpkinFrames,
-      getTimeBasedFrameSelector(growthTime, pumpkinFrames.length)
+      getTimeBasedFrameSelector(PUMPKIN_GROWTH_TIME, pumpkinFrames.length)
     );
     this.animator.play("grow");
   }
@@ -32,13 +31,17 @@ class Pumpkin {
 
   break() {
     if (this.animator.t > PUMPKIN_GROWTH_TIME) {
+      Particles.sprayUp(this.x, this.y, "orange", 10, 5)
       let numHearts = Math.floor(Math.random() * 4) + 1;
       for (let i = 0; i < numHearts; i++) {
         hearts.push(new Heart(this.x, this.y))
       }
-      console.log('pumpkin break!')
+      pumpkinSound.currentTime = 0;
+      pumpkinSound.play();
       if (this.animator.t > PUMPKIN_GROWTH_TIME) {
       }
+    } else {
+
     }
     this.animator.t = 0;
   }

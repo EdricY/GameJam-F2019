@@ -25,6 +25,7 @@ class Heart {
 
     if (Math.abs(dx) < player.hw + HEART_W/2) {
       if (Math.abs(dy) < player.h+HEART_H) {
+        Particles.explode(this.x, this.y, "red", 8, 4)
         return true;
       }
     }

@@ -1,5 +1,6 @@
 var canvas = document.getElementById('canvas')
 var ctx = canvas.getContext("2d");
+
 // var renderer = document.getElementById('renderer')
 
 const VW = renderer.width
@@ -36,7 +37,7 @@ const ATTACK_DUR = 20;
 
 const HEART_W = 30;
 const HEART_H = 30;
-const ZOM_DMG = 60;
+const ZOM_DMG = 100;
 
 //map things
 const PIXELDICT = { //TODO: get from dictonary img instead
