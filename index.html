@@ -274,24 +274,28 @@
     }
   }
 
-  var winTimer = 200;
+  var winTimer = 50;
   var winPhase1 = true;
+  var specialPumpkinSmashed = false;
   function showWinScreen() {
-    if (winPhase1) {
-      ctx.globalAlpha = .2;
-      ctx.drawImage(creditsImg, 0, 0, VW, VH);
-      // ctx.fillStyle = "white"
-      // ctx.fillRect(0, 0, VW, VH);
-
-      // ctx.globalAlpha = 1;
-      // ctx.fillStyle = "black";
-      // ctx.font = "20px serif";
-      // ctx.textAlign = "center";
-      // ctx.textBaseline = "alphabetic";
-      // ctx.fillText("You Win!", VW/2, VH/2);
-      // if (winTimer-- <= 0) winPhase1 = false;
-      requestAnimationFrame(showWinScreen)
+    ctx.globalAlpha = 1 - winTimer/50; //not how to do a real fade - should draw other img in between
+    ctx.drawImage(creditsImg, 0, 0, VW, VH);
+    if (specialPumpkinSmashed) {
+      let frame = { x:10, y:70, w:89, h:51, px:54, py:119 }
+      let top = 354 - (frame.py - frame.y);
+      let left = 200 - (frame.px - frame.x);
+      ctx.drawImage(pumpkinSprites, frame.x, frame.y, frame.w, frame.h, left, top, frame.w, frame.h);
     }
+    // ctx.fillStyle = "white"
+    // ctx.fillRect(0, 0, VW, VH);
+    
+    // ctx.globalAlpha = 1;
+    // ctx.fillStyle = "black";
+    // ctx.font = "20px serif";
+    // ctx.textAlign = "center";
+    // ctx.textBaseline = "alphabetic";
+    // ctx.fillText("You Win!", VW/2, VH/2);
+    if (--winTimer > 0) requestAnimationFrame(showWinScreen)
   }
 
   

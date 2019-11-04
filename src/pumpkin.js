@@ -34,6 +34,7 @@ class Pumpkin {
 
   break() {
     if (this.x == 7014 && this.y == 387) {
+      specialPumpkinSmashed = true;
       Particles.spiral(this.x, this.y, "red");
       Particles.spiral(this.x, this.y, "yellow");
       Particles.spiral(this.x, this.y, "orange");
