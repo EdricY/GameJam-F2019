@@ -23,6 +23,9 @@ class Pumpkin {
     let top = this.y - (frame.py - frame.y);
     let left = this.x - (frame.px - frame.x);
     ctx.drawImage(pumpkinSprites, frame.x, frame.y, frame.w, frame.h, left, top, frame.w, frame.h);
+    if (this.x == 7014 && this.y == 387) {
+      Particles.sprayUp(this.x, this.y, "yellow", 1, 1);
+    }
   }
 
   update() {
@@ -30,6 +33,12 @@ class Pumpkin {
   }
 
   break() {
+    if (this.x == 7014 && this.y == 387) {
+      Particles.spiral(this.x, this.y, "red");
+      Particles.spiral(this.x, this.y, "yellow");
+      Particles.spiral(this.x, this.y, "orange");
+      Particles.spiral(this.x, this.y, "white");
+    }
     if (this.animator.t > PUMPKIN_GROWTH_TIME) {
       Particles.sprayUp(this.x, this.y, "orange", 10, 5)
       let numHearts = Math.floor(Math.random() * 4) + 1;

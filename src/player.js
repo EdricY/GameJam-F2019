@@ -277,7 +277,7 @@ class Player {
         );
 
         let jumpcrouchframes = [
-            { x:135, y:255, w:87, h:90, px:190, py:343 },
+            // { x:135, y:255, w:87, h:90, px:190, py:343 },
             { x:260, y:254, w:88, h:107, px:297, py:360 },
         ];
         this.animator.register("jumpcrouch",
