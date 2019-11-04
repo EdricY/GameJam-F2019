@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" href="index.css">
   <script>
     var loadedResrcs = 0;
-    const RESRCS_TO_LOAD = 30;
+    const RESRCS_TO_LOAD = 36;
     function resrcLoaded() { loadedResrcs++; loadmsg.innerHTML += "."; }
 
     function drawTitle() {
@@ -23,7 +23,7 @@
     <div>
       <button onclick="connect()">Connect</button>
       <button onclick="host()">Host</button>
-      <button onclick="host()">Play Solo</button>
+      <button onclick="playSolo()">Play Solo</button>
     </div>
   </div>
   <div id="myPeerID"></div>
@@ -34,6 +34,14 @@
   </div>
   <canvas hidden id="renderer" width="720" height="480"></canvas>
 </body>
+<audio id="p1audio" src="resrc/wallace_badworld.wav" oncanplay="resrcLoaded()" loop></audio>
+<audio id="p2audio" src="resrc/wallace_goodworld.wav" oncanplay="resrcLoaded()" loop></audio>
+<audio id="pumpkinSound" src="resrc/pumpkinsound.wav" oncanplay="resrcLoaded()"></audio>
+<audio id="attackSound" src="resrc/attack.wav" oncanplay="resrcLoaded()"></audio>
+<audio id="axeSound" src="resrc/axesound.wav" oncanplay="resrcLoaded()"></audio>
+<audio id="zombieDieSound" src="resrc/zombiedead.wav" oncanplay="resrcLoaded()"></audio>
+<audio id="endgameAudio" src="resrc/wallace_neutral.wav" loop></audio>
+
 <img hidden id='p1sprites' onload="resrcLoaded()" src='resrc/girl1Sheet.png'>
 <img hidden id='p2sprites' onload="resrcLoaded()" src='resrc/girl2Sheet.png'>
 <img hidden id='portalSprites' onload="resrcLoaded()" src='resrc/portalSheet.png'>
@@ -64,12 +72,6 @@
 <img hidden id='titleImg' onload="resrcLoaded(); drawTitle()" src='resrc/title screen.png'>
 <img hidden id='creditsImg' onload="resrcLoaded()" src='resrc/credits.png'>
 
-<audio id="p1audio" src="resrc/wallace_badworld.wav" loop></audio>
-<audio id="p2audio" src="resrc/wallace_goodworld.wav" loop></audio>
-<audio id="pumpkinSound" src="resrc/pumpkinsound.wav"></audio>
-<audio id="attackSound" src="resrc/attack.wav"></audio>
-<audio id="axeSound" src="resrc/axesound.wav"></audio>
-<audio id="zombieDieSound" src="resrc/zombiedead.wav"></audio>
 
 <script src="src/peer.js"></script> <!-- https://peerjs.com/ -->
 <script src="src/constants.js"></script>
@@ -107,6 +109,7 @@
   var swapFollowUpTimer = 60;
   var swapData = {};
   var isP1 = false;
+  var solo = false;
 
 
   var gameWon = false;
@@ -190,6 +193,14 @@
 
   }
 
+  function playSolo() {
+    solo = true;
+    isP1 = true;
+    loadInterval = setInterval(attemptInit, 1000);
+    connectDiv.classList.add("nodisplay");
+    loadmsg.classList.remove("nodisplay");
+  }
+
   //receiving messages
   function handleMessage(data) {
     let parsed = JSON.parse(data);
@@ -237,7 +248,7 @@
 
   function attemptInit() {
     if (loadedResrcs == RESRCS_TO_LOAD) {
-      isP1 = hosting;
+      if (!solo) isP1 = hosting;
       clearInterval(loadInterval)
       gameInit();
       loadmsg.classList.add("nodisplay");
@@ -249,6 +260,18 @@
   function winGame() {
     gameWon = true;
     requestAnimationFrame(showWinScreen)
+
+    if (isP1) {
+        let audiotime = p1audio.currentTime;
+        p1audio.pause();
+        endgameAudio.currentTime = audiotime;
+        endgameAudio.play();
+    } else {
+        let audiotime = p2audio.currentTime;
+        p2audio.pause();
+        endgameAudio.currentTime = audiotime;
+        endgameAudio.play();
+    }
   }
 
   var winTimer = 200;
@@ -272,6 +295,24 @@
   }
 
   
+
+// p1audio.duration == 34.847313
+// p2audio.duration == 34.899563
+// endgameAudio.duration == 34.909093
+
+// p1audio.addEventListener('timeupdate', bufferedLooper, false);
+// p2audio.addEventListener('timeupdate', bufferedLooper, false);
+// endgameAudio.addEventListener('timeupdate', bufferedLooper, false);
+
+// var audioBufferTime = .44
+// function bufferedLooper() {
+//   if (this.currentTime > this.duration - audioBufferTime){
+//     this.currentTime = 0
+//     this.play()
+//   }
+// }
+
+
 </script>
 
 </html>

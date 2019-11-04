@@ -112,20 +112,27 @@ function gameUpdate() {
     peeking = activePortal != null;
 
     player.update(world.cMap, keys, lastKeys, camera);
-    
-    if (peeking && swapFollowUpTimer == 0) { //keeps sending after they stop responding
+    if (solo && peeking) {
+        swapInProgress = true;
+        peeking = false;
+    } else if (peeking && swapFollowUpTimer == 0) { //keeps sending after they stop responding
         connection.send(newPacket(PEEKREQ));
     }
 
     if (swapInProgress) {
         swapTimer--;
-        if (!swapMsgSent) {
+        if (!swapMsgSent && !solo) {
             connection.send(newPacket(SWAPMSG, getSwapData()));
             swapMsgSent = true;
         }
         if (swapTimer <= 0) { //do swap!
             if (player.x > 8500 && swapData.px > 8500) {
                 winGame();
+                return;
+            }
+            if (solo && player.x > 8500) {
+                winGame();
+                return;
             }
 
             swapAudio();
@@ -139,8 +146,10 @@ function gameUpdate() {
             hearts = [];
             
             // I think it's better without this...
-            player.x = swapData.px
-            player.y = swapData.py
+            if (!solo) {
+                player.x = swapData.px
+                player.y = swapData.py
+            }
 
         }
     } else if (swapFollowUpTimer > 0) swapFollowUpTimer--;
@@ -232,15 +241,9 @@ function drawHUD() {
 	// ctx.font = "20px serif";
 	// ctx.textAlign = "right"
 	// properties = [
-	// 	'player.x',
-	// 	'player.y',
-	// 	'player.vx',
-	// 	'player.vy',
-    //     'player.midair',
-    //     'player.animator.state',
     //     'peeking',
     //     'swapTimer',
-    //     'phitboxes[0]',
+    //     'swapFollowUpTimer',
 	// ]
 	// let spacing = 20;
 	// for (let i in properties){
