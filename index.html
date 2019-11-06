@@ -34,13 +34,13 @@
   </div>
   <canvas hidden id="renderer" width="720" height="480"></canvas>
 </body>
-<audio id="p1audio" src="resrc/wallace_badworld.wav" oncanplay="resrcLoaded()" loop></audio>
-<audio id="p2audio" src="resrc/wallace_goodworld.wav" oncanplay="resrcLoaded()" loop></audio>
+<audio id="p1audio" src="resrc/wallace_badworld.mp3" oncanplay="resrcLoaded()"></audio>
+<audio id="p2audio" src="resrc/wallace_goodworld.mp3" oncanplay="resrcLoaded()"></audio>
 <audio id="pumpkinSound" src="resrc/pumpkinsound.wav" oncanplay="resrcLoaded()"></audio>
 <audio id="attackSound" src="resrc/attack.wav" oncanplay="resrcLoaded()"></audio>
 <audio id="axeSound" src="resrc/axesound.wav" oncanplay="resrcLoaded()"></audio>
 <audio id="zombieDieSound" src="resrc/zombiedead.wav" oncanplay="resrcLoaded()"></audio>
-<audio id="endgameAudio" src="resrc/wallace_neutral.wav" loop></audio>
+<audio id="endgameAudio" src="resrc/wallace_neutral.mp3"></audio>
 
 <img hidden id='p1sprites' onload="resrcLoaded()" src='resrc/girl1Sheet.png'>
 <img hidden id='p2sprites' onload="resrcLoaded()" src='resrc/girl2Sheet.png'>
@@ -300,22 +300,18 @@
 
   
 
+// old audio data
 // p1audio.duration == 34.847313
 // p2audio.duration == 34.899563
 // endgameAudio.duration == 34.909093
 
-// p1audio.addEventListener('timeupdate', bufferedLooper, false);
-// p2audio.addEventListener('timeupdate', bufferedLooper, false);
-// endgameAudio.addEventListener('timeupdate', bufferedLooper, false);
+function loopMusic() {
+  if (p1audio.currentTime > 34.847313) p1audio.currentTime -= 34.847313;
+  if (p2audio.currentTime > 34.899563) p1audio.currentTime -= 34.899563;
+  if (endgameAudio.currentTime > 34.909093) endgameAudio.currentTime -= 34.909093;
+}
 
-// var audioBufferTime = .44
-// function bufferedLooper() {
-//   if (this.currentTime > this.duration - audioBufferTime){
-//     this.currentTime = 0
-//     this.play()
-//   }
-// }
-
+setInterval(loopMusic, 1000);
 
 </script>
 
