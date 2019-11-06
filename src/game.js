@@ -59,8 +59,18 @@ function gameInit() {
         }
     }
 
-    if (isP1) p1audio.play();
-    else p2audio.play();
+    gainNode1.gain.value = -1;
+    gainNode2.gain.value = -1;
+    gainNode3.gain.value = -1;
+    if (isP1) {
+        gainNode1.gain.value = 0;
+    }
+    else {
+        gainNode2.gain.value = 0;
+    }
+    audioSource1.start(0)
+    audioSource2.start(0)
+    audioSource3.start(0)
 
 
     setTimeout( () => requestAnimationFrame(tick), 500);
@@ -199,15 +209,15 @@ function gameDraw() {
 
 function swapAudio() { //do before isP1 switches
     if (isP1) {
-        let audiotime = p1audio.currentTime;
-        p1audio.pause();
-        p2audio.currentTime = audiotime;
-        p2audio.play();
+        gainNode1.gain.linearRampToValueAtTime(0, audioCtx1.currentTime);
+        gainNode1.gain.linearRampToValueAtTime(-1, audioCtx1.currentTime + 2);
+        gainNode2.gain.linearRampToValueAtTime(-1, audioCtx1.currentTime);
+        gainNode2.gain.linearRampToValueAtTime(0, audioCtx1.currentTime + 2);
     } else {
-        let audiotime = p2audio.currentTime;
-        p2audio.pause();
-        p1audio.currentTime = audiotime;
-        p1audio.play();
+        gainNode1.gain.linearRampToValueAtTime(-1, audioCtx1.currentTime);
+        gainNode1.gain.linearRampToValueAtTime(0, audioCtx1.currentTime + 2);
+        gainNode2.gain.linearRampToValueAtTime(0, audioCtx1.currentTime);
+        gainNode2.gain.linearRampToValueAtTime(-1, audioCtx1.currentTime + 2);
     }
 }
 

@@ -5,7 +5,7 @@
   <link rel="stylesheet" type="text/css" href="index.css">
   <script>
     var loadedResrcs = 0;
-    const RESRCS_TO_LOAD = 36;
+    const RESRCS_TO_LOAD = 33;
     function resrcLoaded() { loadedResrcs++; loadmsg.innerHTML += "."; }
 
     function drawTitle() {
@@ -34,12 +34,14 @@
   </div>
   <canvas hidden id="renderer" width="720" height="480"></canvas>
 </body>
-<audio id="p1audio" src="resrc/wallace_badworld.mp3" oncanplay="resrcLoaded()" loop></audio>
-<audio id="p2audio" src="resrc/wallace_goodworld.mp3" oncanplay="resrcLoaded()" loop></audio>
-<audio id="pumpkinSound" src="resrc/pumpkinsound.wav" oncanplay="resrcLoaded()"></audio>
-<audio id="attackSound" src="resrc/attack.wav" oncanplay="resrcLoaded()"></audio>
-<audio id="axeSound" src="resrc/axesound.wav" oncanplay="resrcLoaded()"></audio>
-<audio id="zombieDieSound" src="resrc/zombiedead.wav" oncanplay="resrcLoaded()"></audio>
+<!-- leaving background tracks here in hopes that it speeds up the requests below... -->
+<audio id="p1audio" src="resrc/wallace_badworld.mp3"></audio>
+<audio id="p1audio2" src="resrc/wallace_badworld2.mp3"></audio>
+<audio id="p2audio" src="resrc/wallace_goodworld.mp3"></audio>
+<audio id="pumpkinSound" src="resrc/pumpkinsound.wav"></audio>
+<audio id="attackSound" src="resrc/attack.wav"></audio>
+<audio id="axeSound" src="resrc/axesound.wav"></audio>
+<audio id="zombieDieSound" src="resrc/zombiedead.wav"></audio>
 <audio id="endgameAudio" src="resrc/wallace_neutral.mp3"></audio>
 
 <img hidden id='p1sprites' onload="resrcLoaded()" src='resrc/girl1Sheet.png'>
@@ -261,16 +263,14 @@
     gameWon = true;
     requestAnimationFrame(showWinScreen)
 
+    gainNode3.gain.linearRampToValueAtTime(-1, audioCtx1.currentTime);
+    gainNode3.gain.linearRampToValueAtTime(0, audioCtx1.currentTime + 2);
     if (isP1) {
-        let audiotime = p1audio.currentTime;
-        p1audio.pause();
-        endgameAudio.currentTime = audiotime;
-        endgameAudio.play();
+      gainNode1.gain.linearRampToValueAtTime(0, audioCtx1.currentTime);
+      gainNode1.gain.linearRampToValueAtTime(-1, audioCtx1.currentTime + 2);
     } else {
-        let audiotime = p2audio.currentTime;
-        p2audio.pause();
-        endgameAudio.currentTime = audiotime;
-        endgameAudio.play();
+      gainNode2.gain.linearRampToValueAtTime(0, audioCtx1.currentTime);
+      gainNode2.gain.linearRampToValueAtTime(-1, audioCtx1.currentTime + 2);
     }
   }
 
@@ -305,13 +305,98 @@
 // p2audio.duration == 34.899563
 // endgameAudio.duration == 34.909093
 
-function loopMusic() {
-  if (p1audio.currentTime > 34.85) p1audio.currentTime -= 34.85;
-  if (p2audio.currentTime > 34.9) p2audio.currentTime -= 34.9;
-  if (endgameAudio.currentTime > 34.9) endgameAudio.currentTime -= 34.9;
+var audioCtx1 = new (window.AudioContext || window.webkitAudioContext)();
+var gainNode1;
+var audioData1;
+var audioSource1;
+function getAudioData1() {
+  audioSource1 = audioCtx1.createBufferSource();
+  let request = new XMLHttpRequest();
+
+  request.open('GET', 'resrc/wallace_badworld.wav', true);
+  request.responseType = 'arraybuffer';
+
+  request.onload = function() {
+    audioData1 = request.response;
+    audioCtx1.decodeAudioData(audioData1, function(buffer) {
+        let myBuffer = buffer;
+        let songLength = buffer.duration;
+        audioSource1.buffer = myBuffer;
+        audioSource1.connect(audioCtx1.destination);
+        audioSource1.loop = true;
+        gainNode1 = audioCtx1.createGain();
+        gainNode1.gain.value = 0;
+        audioSource1.connect(gainNode1);
+        gainNode1.connect(audioCtx1.destination);
+        resrcLoaded();
+      },
+      function(e){"Error with decoding audio data" + e.error});
+  }
+  request.send();
 }
 
-setInterval(loopMusic, 1000);
+var audioCtx2 = new (window.AudioContext || window.webkitAudioContext)();
+var gainNode2;
+var audioData2;
+var audioSource2;
+function getAudioData2() {
+  audioSource2 = audioCtx2.createBufferSource();
+  let request = new XMLHttpRequest();
+
+  request.open('GET', 'resrc/wallace_goodworld.wav', true);
+  request.responseType = 'arraybuffer';
+
+  request.onload = function() {
+    audioData2 = request.response;
+    audioCtx2.decodeAudioData(audioData2, function(buffer) {
+        let myBuffer = buffer;
+        let songLength = buffer.duration;
+        audioSource2.buffer = myBuffer;
+        audioSource2.connect(audioCtx2.destination);
+        audioSource2.loop = true;
+        gainNode2 = audioCtx2.createGain();
+        audioSource2.connect(gainNode2);
+        gainNode2.connect(audioCtx2.destination);
+        resrcLoaded();
+      },
+      function(e){"Error with decoding audio data" + e.error});
+  }
+  request.send();
+}
+
+var audioCtx3 = new (window.AudioContext || window.webkitAudioContext)();
+var gainNode3;
+var audioData3;
+var audioSource3;
+function getAudioData3() {
+  audioSource3 = audioCtx3.createBufferSource();
+  let request = new XMLHttpRequest();
+
+  request.open('GET', 'resrc/wallace_neutral.wav', true);
+  request.responseType = 'arraybuffer';
+
+  request.onload = function() {
+    audioData3 = request.response;
+    audioCtx3.decodeAudioData(audioData3, function(buffer) {
+        let myBuffer = buffer;
+        let songLength = buffer.duration;
+        audioSource3.buffer = myBuffer;
+        audioSource3.connect(audioCtx3.destination);
+        audioSource3.loop = true;
+        gainNode3 = audioCtx3.createGain();
+        audioSource3.connect(gainNode3);
+        gainNode3.connect(audioCtx3.destination);
+        gainNode3.gain.value = -1;
+        resrcLoaded();
+      },
+      function(e){"Error with decoding audio data" + e.error});
+  }
+  request.send();
+}
+
+getAudioData1();
+getAudioData2();
+getAudioData3();
 
 </script>
 
